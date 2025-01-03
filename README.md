@@ -1,3 +1,5 @@
+#Meal Planner
+
 This is an app that acts as a digital recipe book. Features to generate meal plans based off of recipes will be coming soon!
 
 ## Table of Contents
