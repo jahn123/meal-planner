@@ -24,7 +24,7 @@ export default function LoginForm() {
               placeholder="Username"
               required
             />
-            {/* put icon here */}
+            {/* put logo here */}
           </div>
         </div>
         <div>
