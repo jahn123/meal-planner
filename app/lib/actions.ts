@@ -3,10 +3,12 @@
 import { sql } from '@vercel/postgres';
 import { neon } from '@neondatabase/serverless';
 import { z } from 'zod';
+import bcrypt from 'bcrypt';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
 
-// TODO: switch to neon sql
 const neonSql = neon(`${process.env.DATABASE_URL}`);
 
 export type RecipeState = {
@@ -17,6 +19,15 @@ export type RecipeState = {
     cookTimeMin?: string[];
     ingredients?: string[];
     steps?: string[];
+  };
+  message?: string | null;
+};
+
+export type UserState = {
+  errors?: {
+    username?: string[];
+    // email?: string[];
+    password?: string[];
   };
   message?: string | null;
 };
@@ -33,6 +44,13 @@ const RecipeFormSchema = z.object({
     .array().optional(),
   steps: z.string()
     .array().optional(),
+});
+
+const UserFormSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  // email: z.string().optional(),
+  password: z.string().min(6),
 });
 
 const CreateRecipe = RecipeFormSchema.omit({ id: true });
@@ -123,4 +141,53 @@ export async function deleteRecipe(id: string) {
   }
 
   redirect('/dashboard/recipes');
+}
+
+const CreateUser = UserFormSchema.omit({ id: true });
+export async function createUser(prevState: UserState, formData: FormData) {
+  const validatedFields = CreateUser.safeParse({
+    username: formData.get('username'),
+    // email: formData.get('ingredient'),
+    password: formData.get('password'),
+  });
+
+  if (!validatedFields.success) {
+    return ({
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create User.',
+    });
+  }
+
+  const { username, password } = validatedFields.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  try {
+    await sql`
+      INSERT INTO users (username, password)
+      VALUES (${username}, ${hashedPassword})
+    `;
+  } catch (error) {
+    console.error(error);
+    // return 'Something went wrong.';
+    return { errors: {}, message: 'Something went wrong.' };
+  }
+
+  revalidatePath('/dashboard');
+  redirect('/dashboard');
+}
+
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
+  }
 }
