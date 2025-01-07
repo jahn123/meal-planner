@@ -6,12 +6,22 @@ async function createPrimaryTables() {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
+    const createUsers = await client.sql`
+      CREATE TABLE IF NOT EXISTS users (
+        user_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        email VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(60) NOT NULL
+      );
+    `;
+    console.log('Created users table');
+
     const createPlans = await client.sql`
       CREATE TABLE IF NOT EXISTS plans (
         plan_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY
       );
     `;
-    console.log(`Created "plans" table`);
+    console.log('Created plans table');
 
     const createRecipes = await client.sql`
       CREATE TABLE IF NOT EXISTS recipes (
@@ -24,7 +34,7 @@ async function createPrimaryTables() {
         steps VARCHAR[]
       );
     `;
-    console.log(`Created "recipes" table`);
+    console.log('Created recipes table');
 
     const createFeatures = await client.sql`
       CREATE TABLE IF NOT EXISTS features (
@@ -33,9 +43,10 @@ async function createPrimaryTables() {
         feature_description VARCHAR(300)
       );
     `;
-    console.log(`Created "features" table`);
+    console.log('Created features table');
 
     return {
+      createUsers,
       createPlans,
       createRecipes,
       createFeatures,
@@ -61,7 +72,7 @@ async function createSecondaryTables() {
           REFERENCES recipes(recipe_id)
       );
     `;
-    console.log(`Created "plan_recipes" table`);
+    console.log('Created plan_recipes table');
 
     return {
       createPlanRecipes
@@ -82,7 +93,7 @@ export async function GET() {
     await createSecondaryTables();
     await client.sql`COMMIT`;
 
-    return Response.json({ message: 'Database seeded successfully' });
+    return Response.json({ message: 'Database created successfully' });
   } catch (error) {
     await client.sql`ROLLBACK`;
     return Response.json({ error }, { status: 500 });
