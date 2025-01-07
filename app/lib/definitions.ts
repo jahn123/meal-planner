@@ -1,3 +1,9 @@
+export type User = {
+  user_id: string;
+  email: string;
+  password: string;
+}
+
 export type Plan = {
   plan_id: string,
 };
