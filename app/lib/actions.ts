@@ -26,7 +26,7 @@ export type RecipeState = {
 export type UserState = {
   errors?: {
     username?: string[];
-    email?: string[];
+    // email?: string[];
     password?: string[];
   };
   message?: string | null;
@@ -49,7 +49,7 @@ const RecipeFormSchema = z.object({
 const UserFormSchema = z.object({
   id: z.string(),
   username: z.string(),
-  email: z.string().optional(),
+  // email: z.string().optional(),
   password: z.string().min(6),
 });
 
@@ -145,13 +145,12 @@ export async function deleteRecipe(id: string) {
 
 const CreateUser = UserFormSchema.omit({ id: true });
 export async function createUser(prevState: UserState, formData: FormData) {
-  console.log(formData)
   const validatedFields = CreateUser.safeParse({
     username: formData.get('username'),
     // email: formData.get('ingredient'),
     password: formData.get('password'),
   });
-  console.log(validatedFields)
+
   if (!validatedFields.success) {
     return ({
       errors: validatedFields.error.flatten().fieldErrors,
@@ -161,7 +160,7 @@ export async function createUser(prevState: UserState, formData: FormData) {
 
   const { username, password } = validatedFields.data;
   const hashedPassword = await bcrypt.hash(password, 10);
-  console.log(username, hashedPassword)
+
   try {
     await sql`
       INSERT INTO users (username, password)
@@ -169,7 +168,8 @@ export async function createUser(prevState: UserState, formData: FormData) {
     `;
   } catch (error) {
     console.error(error);
-    return { message: 'Something went wrong.' };
+    // return 'Something went wrong.';
+    return { errors: {}, message: 'Something went wrong.' };
   }
 
   revalidatePath('/dashboard');

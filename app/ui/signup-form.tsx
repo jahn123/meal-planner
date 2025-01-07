@@ -1,11 +1,14 @@
 'use client';
 
-import { createUser, UserState } from '../lib/actions';
+import { createUser } from '../lib/actions';
+import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { useActionState } from 'react';
 
 export default function SignUpForm() {
-  const initialState: UserState = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createUser, initialState);
+  const [errorState, formAction, isPending] = useActionState(
+    createUser,
+    { errors: {}, message: '' },
+  );
 
   return (
     <form action={formAction} className="space-y-3">
@@ -47,7 +50,23 @@ export default function SignUpForm() {
             />
           </div>
         </div>
-        <button>Sign Up</button>
+        <button
+          aria-disabled={isPending}
+        >
+          Sign Up
+        </button>
+        <div
+          className="flex h-8 items-end space-x-1"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {(errorState.errors.username || errorState.errors.password) && (
+            <>
+              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+              <p className="text-sm text-red-500">{errorState.errors.username ? errorState.errors.username : errorState.errors.password }</p>
+            </>
+          )}
+        </div>
       </div>
     </form>
   );
