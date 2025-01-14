@@ -13,21 +13,19 @@ export default function RecipeForm ({
 }
 ) {
   let initialIngredients = ingredients;
-  if (!ingredients) initialIngredients = [];
+  if (!ingredients) initialIngredients = [''];
   let initialSteps = steps;
-  if (!steps) initialSteps = [];
+  if (!steps) initialSteps = [''];
   const { cookTimeHr, leftoverCookTimeMin } = convertHrToHrMin(cookTimeMin);
-  const [newIngredient, setNewIngredient] = useState("");
   const [newIngredients, setNewIngredients] = useState(initialIngredients);
-  const [newStep, setNewStep] = useState("");
   const [newSteps, setNewSteps] = useState(initialSteps);
 
   const initialState: RecipeState = { message: null, errors: {} };
-  const updateRecipeWithId = updateRecipe.bind(null, id)
+  const updateRecipeWithId = updateRecipe.bind(null, id);
   const [state, formAction] = useActionState(updateRecipeWithId, initialState);
 
   return (
-    <form action={formAction}>
+    <form id="recipe-form" action={formAction}>
       {/* Meal picture */}
       <div>
         <Image 
@@ -40,7 +38,7 @@ export default function RecipeForm ({
       {/* Meal name */}
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-10 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="recipeName"
           type="text"
           name="recipeName"
@@ -52,7 +50,7 @@ export default function RecipeForm ({
       {/* Description */}
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-10 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="recipeDescription"
           type="text"
           name="recipeDescription"
@@ -68,7 +66,7 @@ export default function RecipeForm ({
       </label>
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-10 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-16 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="calories"
           type="number"
           name="calories"
@@ -84,7 +82,7 @@ export default function RecipeForm ({
       </label>
       <div className="flex justify-start">
         <input
-          className="peer block rounded-md py-[9px] bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-12 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="cookTimeHr"
           type="number"
           name="cookTimeHr"
@@ -93,9 +91,8 @@ export default function RecipeForm ({
           placeholder={`${cookTimeHr}`}
           required
         />
-        <span>:</span>
         <input
-          className="peer block rounded-md py-[9px] bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-12 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="cookTimeMin"
           type="number"
           name="cookTimeMin"
@@ -111,27 +108,27 @@ export default function RecipeForm ({
         >
           Ingredients
         </label>
-        <div className="grid grid-cols-2">
-          {newIngredients?.map((ingredient, index = 0) => {
+        <div id="ingredients" className="grid grid-cols-2">
+          {newIngredients?.map((ingredient, index) => {
             return (
               <div 
-                key={++index}
+                key={index}
                 className="flex flex-cols-2 rounded-md pr-3"
               >
                 <input
-                  id={ingredient}
+                  className="rounded-md py-2 pl-2 w-full bg-zinc-800"
                   name="ingredient"
-                  className="rounded-md py-2 w-full bg-zinc-800"
                   type="text"
-                  defaultValue={ingredient}
+                  value={ingredient}
                   placeholder={ingredient}
+                  onChange={(e) => {
+                    setNewIngredients(newIngredients.toSpliced(index, 1, e.target.value));
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    setNewIngredients(newIngredients?.filter(ingred =>
-                      ingred !== ingredient
-                    ));
+                    setNewIngredients(newIngredients.filter((_ingredient, _index) => _index !== index));
                   }}
                 >
                   <TrashIcon className="w-6" />
@@ -142,19 +139,10 @@ export default function RecipeForm ({
         </div>
       </div>
       <div className="flex items-center">
-        <textarea
-          id="newIngredient"
-          className="rounded-md py-2 bg-zinc-800"
-          value={newIngredient}
-          onChange={(e) => {
-            setNewIngredient(e.target.value);
-            console.log(newIngredient)
-          }}
-        />
         <button
           type="button"
           className="rounded-md p-2 hover:bg-gray-800"
-          onClick={() => setNewIngredients([...newIngredients, newIngredient])}
+          onClick={() => setNewIngredients([...newIngredients, ''])}
         >
           <PlusIcon className="w-6" />
         </button>
@@ -163,25 +151,26 @@ export default function RecipeForm ({
       <label>Steps</label>
       <div>
         <div className="flex flex-col">
-          {newSteps?.map((step, index = 0) => {
+          {newSteps?.map((step, index) => {
             return (
               <div 
-                key={++index}
+                key={index}
                 className="flex pr-3"
               >
                 <input
-                  className="w-full rounded-md py-2 bg-zinc-800"
+                  className="w-full rounded-md py-2 pl-2 bg-zinc-800"
                   name="step"
                   type="text"
-                  defaultValue={step}
+                  value={step}
                   placeholder={step}
+                  onChange={(e) => {
+                    setNewSteps(newSteps.toSpliced(index, 1, e.target.value));
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    setNewSteps(newSteps?.filter(tempStep =>
-                      tempStep !== step
-                    ));
+                    setNewSteps(newSteps.filter((_step, _index) => _index !== index));
                   }}
                 >
                   <TrashIcon className="w-6" />
@@ -191,19 +180,10 @@ export default function RecipeForm ({
           })}
         </div>
         <div className="flex items-center">
-          <textarea
-            id="newStep"
-            className="rounded-md py-2 bg-zinc-800"
-            value={newStep}
-            onChange={(e) => {
-              setNewStep(e.target.value);
-              console.log(newStep)
-            }}
-          />
           <button
             type="button"
             className="rounded-md p-2 hover:bg-gray-800"
-            onClick={() => setNewSteps([...newSteps, newStep])}
+            onClick={() => setNewSteps([...newSteps, ''])}
           >
             <PlusIcon className="w-6" />
           </button>
