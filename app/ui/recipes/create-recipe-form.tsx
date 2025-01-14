@@ -5,9 +5,7 @@ import { useActionState, useState } from 'react';
 import { TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 export default function CreateRecipeForm() {
-  const [newIngredient, setNewIngredient] = useState("");
   const [ingredients, setIngredients] = useState([""]);
-  const [newStep, setNewStep] = useState("");
   const [steps, setSteps] = useState([""]);
 
   const initialState: RecipeState = { message: null, errors: {} };
@@ -91,10 +89,10 @@ export default function CreateRecipeForm() {
           Enter Ingredients
         </label>
         <div className="grid grid-cols-2">
-          {ingredients?.map((ingredient, index = 0) => {
+          {ingredients?.map((ingredient, index) => {
             return (
               <div 
-                key={++index}
+                key={index}
                 className="flex flex-cols-2 rounded-md pr-3"
               >
                 <input
@@ -102,14 +100,17 @@ export default function CreateRecipeForm() {
                   name="ingredient"
                   className="rounded-md py-2 w-full bg-zinc-800"
                   type="text"
-                  defaultValue={ingredient}
+                  value={ingredient}
                   placeholder={ingredient}
+                  onChange={(e) => {
+                    setIngredients(ingredients.toSpliced(index, 1, e.target.value))
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    setIngredients(ingredients?.filter(ingred =>
-                      ingred !== ingredient
+                    setIngredients(ingredients?.filter((_ingredient, _index) =>
+                      _index !== index
                     ));
                   }}
                 >
@@ -121,19 +122,10 @@ export default function CreateRecipeForm() {
         </div>
       </div>
       <div className="flex items-center">
-        <textarea
-          id="newIngredient"
-          className="rounded-md py-2 bg-zinc-800"
-          value={newIngredient}
-          onChange={(e) => {
-            setNewIngredient(e.target.value);
-            console.log(newIngredient)
-          }}
-        />
         <button
           type="button"
           className="rounded-md p-2 hover:bg-gray-800"
-          onClick={() => setIngredients([...ingredients, newIngredient])}
+          onClick={() => setIngredients([...ingredients, ''])}
         >
           <PlusIcon className="w-6" />
         </button>
@@ -143,24 +135,27 @@ export default function CreateRecipeForm() {
         <label>Enter Steps</label>
         <div>
           <div className="flex flex-col">
-            {steps?.map((step, index = 0) => {
+            {steps?.map((step, index) => {
               return (
                 <div 
-                  key={++index}
+                  key={index}
                   className="flex pr-3"
                 >
                   <input
                     className="w-full rounded-md py-2 bg-zinc-800"
                     name="step"
                     type="text"
-                    defaultValue={step}
+                    value={step}
                     placeholder={step}
+                    onChange={(e) => {
+                      setSteps(steps.toSpliced(index, 1, e.target.value));
+                    }}
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      setSteps(steps?.filter(tempStep =>
-                        tempStep !== step
+                      setSteps(steps?.filter((_step, _index) =>
+                        _index !== index
                       ));
                     }}
                   >
@@ -171,19 +166,10 @@ export default function CreateRecipeForm() {
             })}
           </div>
           <div className="flex items-center">
-            <textarea
-              id="newStep"
-              className="rounded-md py-2 bg-zinc-800"
-              value={newStep}
-              onChange={(e) => {
-                setNewStep(e.target.value);
-                console.log(newStep)
-              }}
-            />
             <button
               type="button"
               className="rounded-md p-2 hover:bg-gray-800"
-              onClick={() => setSteps([...steps, newStep])}
+              onClick={() => setSteps([...steps, ''])}
             >
               <PlusIcon className="w-6" />
             </button>

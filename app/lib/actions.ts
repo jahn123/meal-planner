@@ -97,7 +97,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
   });
-  // console.log(validatedFields)
+
   if (!validatedFields.success) {
     return ({
       errors: validatedFields.error.flatten().fieldErrors,
