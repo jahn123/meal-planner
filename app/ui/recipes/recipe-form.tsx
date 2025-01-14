@@ -128,7 +128,8 @@ export default function RecipeForm ({
                 <button
                   type="button"
                   onClick={() => {
-                    setNewIngredients(newIngredients.filter((_ingredient, _index) => _index !== index));
+                    setNewIngredients(newIngredients.filter((_ingredient, _index) =>
+                      _index !== index));
                   }}
                 >
                   <TrashIcon className="w-6" />
@@ -170,7 +171,8 @@ export default function RecipeForm ({
                 <button
                   type="button"
                   onClick={() => {
-                    setNewSteps(newSteps.filter((_step, _index) => _index !== index));
+                    setNewSteps(newSteps.filter((_step, _index) =>
+                      _index !== index));
                   }}
                 >
                   <TrashIcon className="w-6" />
