@@ -1,5 +1,5 @@
 import { sql } from '@vercel/postgres';
-import { Plan, Ingredient, Recipe } from './definitions'
+import { Plan, Ingredient, Recipe, Tag } from './definitions'
 import { unstable_noStore as noStore } from 'next/cache';
 
 export async function fetchRecipes() {
@@ -36,9 +36,23 @@ export async function fetchRecipeById(id: string) {
       SELECT *
       FROM recipes
       WHERE recipes.recipe_id = ${id}
-      `;
+    `;
       // console.log(data)
       return data.rows[0];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function fetchTags() {
+  noStore();
+  try {
+    const data = await sql<Tag>`
+      SELECT *
+      FROM tags
+    `;
+      // console.log(data)
+      return data.rows;
   } catch (error) {
     console.error(error);
   }
