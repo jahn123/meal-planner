@@ -3,22 +3,19 @@
 import { createRecipe, RecipeState } from '@/app/lib/actions';
 import { useActionState, useState } from 'react';
 import { TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { NewTag, Tag } from '@/app/lib/definitions';
+import { Tag } from '@/app/lib/definitions';
 
 export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
   const [ingredients, setIngredients] = useState([""]);
   const [steps, setSteps] = useState([""]);
-  const [tags, setTags] = useState<NewTag[]>([]);
-  const defaultTagOption = '--Select a tag to add--';
-  const tagOptions = [{ tag_name: defaultTagOption, tag_icon: ''}, ...allTags];
-  console.log('tags: ', tags)
+  const [tags, setTags] = useState<string[]>([]);
+  const tagOptions = allTags;
 
   const initialState: RecipeState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createRecipe, initialState);
 
   return (
-    <form action={formAction}>
-    {/* <form> */}
+    <form id="create-recipe" action={formAction}>
       <label>
         Enter the recipe name
       </label>
@@ -184,58 +181,28 @@ export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
       {/* Tags */}
       <label>Choose tags</label>
       <div className="flex">
-        {tags?.map((tag, index) => {
-          return (
-            <div
-              key={index}
-              className="flex"
-            >
-              <select
-                name="tag"
-                className="w-48 rounded-md p-2 bg-zinc-800"
-                value={tag.tag_name}
-                onChange={(e) => {
-                  setTags(tags.toSpliced(index, 1, { tag_name: e.target.value, tag_icon: '' }));
-                }}
-              >
-                {tagOptions.map((tag, index) => {
-                  let isDisabled = false;
-                  if (tag.tag_name !== defaultTagOption) {
-                    isDisabled = tags.find((_tag) => tag.tag_name == _tag.tag_name) ? true : false;
-                  }
-
-                  return (
-                    <option
-                      key={index}
-                      value={tag.tag_name}
-                      disabled={isDisabled}
-                    >
-                      {tag.tag_name}
-                    </option>
-                  );
-                })}
-              </select>
-              <button
-                type="button"
-                onClick={() => setTags(tags.filter((_tag, _index) => _index !== index))}
-              >
-                <TrashIcon className="w-6" />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex">
-        <button
-          type="button"
-          onClick={(e) => {
-            if (tags.length < allTags.length) {
-              setTags([...tags, { tag_name: defaultTagOption, tag_icon: ''}]);
-            }
+        <select
+          name="tags[]"
+          className="w-48 rounded-md p-2 bg-zinc-800"
+          multiple={true}
+          value={tags}
+          onChange={(e) => {
+            if (tags.length >= tagOptions.length) return;
+            if (tags.includes(e.target.value)) return;
+            setTags([...tags, e.target.value]);
           }}
         >
-          <PlusIcon className="w-6" />
-        </button>
+          {tagOptions.map((tag, index) => {
+            return (
+              <option
+                key={index}
+                value={tag.tag_name}
+              >
+                {tag.tag_name}
+              </option>
+            );
+          })}
+        </select>
       </div>
       {/* Submit button */}
       <div id="recipe-error" aria-live="polite" aria-atomic="true">
