@@ -9,7 +9,6 @@ export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
   const [ingredients, setIngredients] = useState([""]);
   const [steps, setSteps] = useState([""]);
   const [tags, setTags] = useState<string[]>([]);
-  const tagOptions = allTags;
 
   const initialState: RecipeState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createRecipe, initialState);
@@ -187,16 +186,16 @@ export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
           multiple={true}
           value={tags}
           onChange={(e) => {
-            if (tags.length >= tagOptions.length) return;
+            if (tags.length >= allTags.length) return;
             if (tags.includes(e.target.value)) return;
             setTags([...tags, e.target.value]);
           }}
         >
-          {tagOptions.map((tag, index) => {
+          {allTags.map((tag, index) => {
             return (
               <option
                 key={index}
-                value={tag.tag_name}
+                value={tag.tag_id}
               >
                 {tag.tag_name}
               </option>
