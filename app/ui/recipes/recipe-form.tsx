@@ -5,11 +5,13 @@ import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { convertHrToHrMin } from '@/app/lib/utils';
 import { useActionState, useState } from 'react';
 import { RecipeState, updateRecipe } from '@/app/lib/actions';
+import { Tag } from '@/app/lib/definitions';
 
 export default function RecipeForm ({
-  id, name, description, calories, cookTimeMin, ingredients, steps
+  id, name, description, calories, cookTimeMin, allTags, ingredients, steps
 }: {
-  id: string, name: string, description: string, calories: number, cookTimeMin: number, ingredients: string[], steps: string[]
+  id: string, name: string, description: string, calories: number, cookTimeMin: number,
+  allTags: Tag[], ingredients: string[], steps: string[]
 }
 ) {
   let initialIngredients = ingredients;
@@ -19,6 +21,7 @@ export default function RecipeForm ({
   const { cookTimeHr, leftoverCookTimeMin } = convertHrToHrMin(cookTimeMin);
   const [newIngredients, setNewIngredients] = useState(initialIngredients);
   const [newSteps, setNewSteps] = useState(initialSteps);
+  const [tags, setTags] = useState<string[]>([]);
 
   const initialState: RecipeState = { message: null, errors: {} };
   const updateRecipeWithId = updateRecipe.bind(null, id);
@@ -38,7 +41,7 @@ export default function RecipeForm ({
       {/* Meal name */}
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-9/12 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="recipeName"
           type="text"
           name="recipeName"
@@ -50,7 +53,7 @@ export default function RecipeForm ({
       {/* Description */}
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-full py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="recipeDescription"
           type="text"
           name="recipeDescription"
@@ -190,6 +193,32 @@ export default function RecipeForm ({
             <PlusIcon className="w-6" />
           </button>
         </div>
+      </div>
+      {/* Tags */}
+      <label>Choose tags</label>
+      <div className="flex">
+        <select
+          name="tags[]"
+          className="w-48 rounded-md p-2 bg-zinc-800"
+          multiple={true}
+          value={tags}
+          onChange={(e) => {
+            if (tags.length >= allTags.length) return;
+            if (tags.includes(e.target.value)) return;
+            setTags([...tags, e.target.value]);
+          }}
+        >
+          {allTags.map((tag, index) => {
+            return (
+              <option
+                key={index}
+                value={tag.tag_id}
+              >
+                {tag.tag_name}
+              </option>
+            );
+          })}
+        </select>
       </div>
       {/* Submit button */}
       <div id="recipe-error" aria-live="polite" aria-atomic="true">
