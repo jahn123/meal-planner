@@ -15,6 +15,7 @@ export type Recipe = {
   calories: number;
   cook_time_min: number;
   ingredients: string[];
+  tags: Tag[];
   steps: string[];
 };
 
