@@ -5,7 +5,9 @@ import { unstable_noStore as noStore } from 'next/cache';
 export async function fetchRecipes() {
   noStore();
   try {
-    const data = await sql<Recipe>`SELECT * FROM recipes`;
+    const data = await sql<Recipe>`
+      SELECT * FROM recipes
+    `;
     // console.log(data)
 
     return data.rows;
@@ -32,13 +34,19 @@ export async function fetchRecipesPreview() {
 export async function fetchRecipeById(id: string) {
   noStore();
   try {
-    const data = await sql<Recipe>`
+    const recipeData = await sql<Recipe>`
       SELECT *
       FROM recipes
       WHERE recipes.recipe_id = ${id}
     `;
-      // console.log(data)
-      return data.rows[0];
+    const recipeTagData = await sql<Tag>`
+      SELECT recipe_tags.tag_id, tags.tag_name, tags.tag_icon
+      FROM tags
+      INNER JOIN recipe_tags ON recipe_tags.tag_id=tags.tag_id
+      WHERE recipe_id = ${id}
+    `;
+
+    return { ...recipeData.rows[0], tags: recipeTagData.rows };
   } catch (error) {
     console.error(error);
   }
