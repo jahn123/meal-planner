@@ -5,20 +5,29 @@ import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { convertHrToHrMin } from '@/app/lib/utils';
 import { useActionState, useState } from 'react';
 import { RecipeState, updateRecipe } from '@/app/lib/actions';
+import { Tag } from '@/app/lib/definitions';
 
 export default function RecipeForm ({
-  id, name, description, calories, cookTimeMin, ingredients, steps
+  id, name, description, calories, cookTimeMin, recipeTags, allTags, ingredients, steps
 }: {
-  id: string, name: string, description: string, calories: number, cookTimeMin: number, ingredients: string[], steps: string[]
-}
-) {
+  id: string, name: string, description: string, calories: number, cookTimeMin: number,
+  recipeTags: Tag[], allTags: Tag[], ingredients: string[], steps: string[]
+})
+{
   let initialIngredients = ingredients;
   if (!ingredients) initialIngredients = [''];
   let initialSteps = steps;
   if (!steps) initialSteps = [''];
+  let initialTags = recipeTags;
+  if (!recipeTags) initialTags = [];
   const { cookTimeHr, leftoverCookTimeMin } = convertHrToHrMin(cookTimeMin);
   const [newIngredients, setNewIngredients] = useState(initialIngredients);
   const [newSteps, setNewSteps] = useState(initialSteps);
+  const [tags, setTags] = useState<string[]>(initialTags.map((tag) => tag.tag_id));
+  console.log("prop_initial: ", initialTags)
+  console.log("prop_recipe: ", recipeTags)
+  console.log("prop_recipe: ", allTags)
+  console.log("tags: ", tags)
 
   const initialState: RecipeState = { message: null, errors: {} };
   const updateRecipeWithId = updateRecipe.bind(null, id);
@@ -38,7 +47,7 @@ export default function RecipeForm ({
       {/* Meal name */}
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-9/12 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="recipeName"
           type="text"
           name="recipeName"
@@ -50,7 +59,7 @@ export default function RecipeForm ({
       {/* Description */}
       <div>
         <input
-          className="peer block rounded-md py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
+          className="peer block rounded-md w-full py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
           id="recipeDescription"
           type="text"
           name="recipeDescription"
@@ -101,6 +110,51 @@ export default function RecipeForm ({
           placeholder={`${leftoverCookTimeMin}`}
           required
         />
+      </div>
+      {/* Tags */}
+      <label>Choose tags</label>
+      {/* Selected Tags */}
+      <div className="p-2 grid grid-cols-9">
+        {tags.map((tag, index) => {
+          return (
+            <div
+              key={index}
+            >
+              {allTags.find((_tag) => _tag.tag_id == tag)?.tag_name}
+              <button
+                type="button"
+                onClick={() => setTags(tags.toSpliced(index, 1))}
+              >
+                <TrashIcon className="w-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      {/* Tag Selector */}
+      <div className="flex">
+        <select
+          name="tags[]"
+          className="w-48 rounded-md p-2 bg-zinc-800"
+          multiple={true}
+          value={tags}
+          onChange={(e) => {
+            if (tags.length >= allTags.length) return;
+            if (tags.includes(e.target.value)) return;
+            setTags([...tags, e.target.value]);
+          }}
+        >
+          {allTags.map((tag, index) => {
+            return (
+              <option
+                key={index}
+                value={tag.tag_id}
+              >
+                {tag.tag_name}
+              </option>
+            );
+          })}
+        </select>
       </div>
       {/* Ingredients */}
       <div className="pb-3">

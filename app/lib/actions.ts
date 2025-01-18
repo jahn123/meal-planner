@@ -19,6 +19,7 @@ export type RecipeState = {
     cookTimeMin?: string[];
     ingredients?: string[];
     steps?: string[];
+    tagIDs?: string[];
   };
   message?: string | null;
 };
@@ -34,7 +35,7 @@ export type UserState = {
 
 const RecipeFormSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z.string().min(1),
   description: z.string().optional(),
   calories: z.coerce
     .number().optional(),
@@ -43,6 +44,8 @@ const RecipeFormSchema = z.object({
   ingredients: z.string()
     .array().optional(),
   steps: z.string()
+    .array().optional(),
+  tagIDs: z.string()
     .array().optional(),
 });
 
@@ -55,6 +58,7 @@ const UserFormSchema = z.object({
 
 const CreateRecipe = RecipeFormSchema.omit({ id: true });
 export async function createRecipe(prevState: RecipeState, formData: FormData) {
+  console.log(formData)
   const validatedFields = CreateRecipe.safeParse({
     name: formData.get('recipeName'),
     description: formData.get('recipeDescription'),
@@ -62,6 +66,7 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
     cookTimeMin: formData.get('cookTimeMin'),
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
+    tagIDs: formData.getAll('tags[]'),
   });
 
   if (!validatedFields.success) {
@@ -70,14 +75,23 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
       message: 'Missing Fields. Failed to Create Invoice.',
     });
   }
-
-  const { name, description, calories, cookTimeMin, ingredients, steps } = validatedFields.data;
+  console.log(validatedFields)
+  const { name, description, calories, cookTimeMin, ingredients, steps, tagIDs } = validatedFields.data;
 
   try {
-    await neonSql`
+    const recipeResult = await neonSql`
       INSERT INTO recipes (recipe_name, recipe_description, calories, cook_time_min, ingredients, steps)
       VALUES (${name}, ${description}, ${calories}, ${cookTimeMin}, ${ingredients}, ${steps})
+      RETURNING (recipe_id)
     `;
+
+    let tagPromises: Promise<any>[] = [];
+    tagIDs?.forEach((tagID) => { tagPromises.push(neonSql`
+      INSERT INTO recipe_tags (recipe_id, tag_id)
+      VALUES (${recipeResult[0].recipe_id}, ${tagID})
+    `);
+    });
+    await Promise.all(tagPromises);
   } catch (error) {
     console.error(error);
     return { message: 'Database Error: ' };
@@ -96,6 +110,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
     cookTimeMin: formData.get('cookTimeMin'),
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
+    tagIDs: formData.getAll('tags[]'),
   });
 
   if (!validatedFields.success) {
@@ -105,7 +120,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
     });
   }
 
-  const { name, description, calories, cookTimeMin, ingredients, steps } = validatedFields.data;
+  const { name, description, calories, cookTimeMin, ingredients, steps, tagIDs } = validatedFields.data;
 
   try {
     await neonSql`
@@ -118,6 +133,19 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
         steps = ${steps}
       WHERE recipe_id = ${id}
     `;
+
+    await neonSql`
+      DELETE FROM recipe_tags
+      WHERE recipe_id = ${id}
+    `;
+
+    let tagPromises: Promise<any>[] = [];
+    tagIDs?.forEach((tagID) => { tagPromises.push(neonSql`
+      INSERT INTO recipe_tags (recipe_id, tag_id)
+      VALUES (${id}, ${tagID})
+    `);
+    });
+    await Promise.all(tagPromises);
   } catch (error) {
     console.log(error);
     return { message: 'Database Error: Failed to Update' };

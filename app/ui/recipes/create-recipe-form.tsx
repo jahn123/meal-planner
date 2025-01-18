@@ -3,17 +3,18 @@
 import { createRecipe, RecipeState } from '@/app/lib/actions';
 import { useActionState, useState } from 'react';
 import { TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { Tag } from '@/app/lib/definitions';
 
-export default function CreateRecipeForm() {
+export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
   const [ingredients, setIngredients] = useState([""]);
   const [steps, setSteps] = useState([""]);
+  const [tags, setTags] = useState<string[]>([]);
 
   const initialState: RecipeState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createRecipe, initialState);
 
   return (
-    <form action={formAction}>
-    {/* <form> */}
+    <form id="create-recipe" action={formAction}>
       <label>
         Enter the recipe name
       </label>
@@ -59,7 +60,7 @@ export default function CreateRecipeForm() {
       {/* Cook time */}
       <label
       >
-        Time
+        Enter cook time
       </label>
       <div className="flex justify-start">
         <input
@@ -86,7 +87,7 @@ export default function CreateRecipeForm() {
       <div className="pb-3">
         <label
         >
-          Enter Ingredients
+          Enter ingredients
         </label>
         <div className="grid grid-cols-2">
           {ingredients?.map((ingredient, index) => {
@@ -130,9 +131,52 @@ export default function CreateRecipeForm() {
           <PlusIcon className="w-6" />
         </button>
       </div>
+      {/* Tags */}
+      <label>Choose tags</label>
+      <div className="p-2 grid grid-cols-9">
+        {tags.map((tag, index) => {
+          return (
+            <div
+              key={index}
+            >
+              {allTags.find((_tag) => _tag.tag_id == tag)?.tag_name}
+              <button
+                type="button"
+                onClick={() => setTags(tags.toSpliced(index, 1))}
+              >
+                <TrashIcon className="w-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex">
+        <select
+          name="tags[]"
+          className="w-48 rounded-md p-2 bg-zinc-800"
+          multiple={true}
+          value={tags}
+          onChange={(e) => {
+            if (tags.length >= allTags.length) return;
+            if (tags.includes(e.target.value)) return;
+            setTags([...tags, e.target.value]);
+          }}
+        >
+          {allTags.map((tag, index) => {
+            return (
+              <option
+                key={index}
+                value={tag.tag_id}
+              >
+                {tag.tag_name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
       {/* Steps */}
       <div className="pb-3">
-        <label>Enter Steps</label>
+        <label>Enter steps</label>
         <div>
           <div className="flex flex-col">
             {steps?.map((step, index) => {

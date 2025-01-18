@@ -1,11 +1,13 @@
 import { sql } from '@vercel/postgres';
-import { Plan, Ingredient, Recipe } from './definitions'
+import { Plan, Ingredient, Recipe, Tag } from './definitions'
 import { unstable_noStore as noStore } from 'next/cache';
 
 export async function fetchRecipes() {
   noStore();
   try {
-    const data = await sql<Recipe>`SELECT * FROM recipes`;
+    const data = await sql<Recipe>`
+      SELECT * FROM recipes
+    `;
     // console.log(data)
 
     return data.rows;
@@ -32,13 +34,33 @@ export async function fetchRecipesPreview() {
 export async function fetchRecipeById(id: string) {
   noStore();
   try {
-    const data = await sql<Recipe>`
+    const recipeData = await sql<Recipe>`
       SELECT *
       FROM recipes
       WHERE recipes.recipe_id = ${id}
-      `;
+    `;
+    const recipeTagData = await sql<Tag>`
+      SELECT recipe_tags.tag_id, tags.tag_name, tags.tag_icon
+      FROM tags
+      INNER JOIN recipe_tags ON recipe_tags.tag_id=tags.tag_id
+      WHERE recipe_id = ${id}
+    `;
+
+    return { ...recipeData.rows[0], tags: recipeTagData.rows };
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function fetchTags() {
+  noStore();
+  try {
+    const data = await sql<Tag>`
+      SELECT *
+      FROM tags
+    `;
       // console.log(data)
-      return data.rows[0];
+      return data.rows;
   } catch (error) {
     console.error(error);
   }

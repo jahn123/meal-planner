@@ -15,8 +15,20 @@ export type Recipe = {
   calories: number;
   cook_time_min: number;
   ingredients: string[];
+  tags: Tag[];
   steps: string[];
 };
+
+export type NewTag = {
+  tag_name: string;
+  tag_icon: string;
+}
+
+export type Tag = {
+  tag_id: string;
+  tag_name: string;
+  tag_icon: string;
+}
 
 export type Ingredient = {
   ingredient_id: string;

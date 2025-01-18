@@ -33,6 +33,19 @@ export default async function RecipeView({ id }: { id: string }) {
           <DeleteRecipe id={id} />
         </div>
       </div>
+      {/* Tags */}
+      <h1>Tags</h1>
+      <div className="p-2 grid grid-cols-9">
+        {recipe?.tags.map((tag, index) => {
+          return (
+            <div
+              key={index}
+            >
+              {tag.tag_name}
+            </div>
+          );
+        })}
+      </div>
       {/* Ingredients */}
       <div className="pb-3">
         <h1>Ingredients</h1>
@@ -48,7 +61,7 @@ export default async function RecipeView({ id }: { id: string }) {
           })}
         </div>
       </div>
-      {/* Recipe steps */}
+      {/* Steps */}
       <div>
         <h1>Steps</h1>
         <div className="flex flex-col h-full">

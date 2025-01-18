@@ -36,20 +36,20 @@ async function createPrimaryTables() {
     `;
     console.log('Created recipes table');
 
-    const createFeatures = await client.sql`
-      CREATE TABLE IF NOT EXISTS features (
-        feature_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        feature_name VARCHAR(75) NOT NULL UNIQUE,
-        feature_description VARCHAR(300)
+    const createTags = await client.sql`
+      CREATE TABLE IF NOT EXISTS tags (
+        tag_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        tag_name VARCHAR(75) NOT NULL UNIQUE,
+        tag_icon VARCHAR(40) UNIQUE
       );
     `;
-    console.log('Created features table');
+    console.log('Created tags table');
 
     return {
       createUsers,
       createPlans,
       createRecipes,
-      createFeatures,
+      createTags,
     };
   } catch (error) {
     console.error('Error creating tables:', error);
@@ -74,8 +74,24 @@ async function createSecondaryTables() {
     `;
     console.log('Created plan_recipes table');
 
+    const createRecipeTags = await client.sql`
+      CREATE TABLE IF NOT EXISTS recipe_tags (
+        recipe_tag_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        recipe_id UUID NOT NULL,
+        tag_id UUID NOT NULL,
+        CONSTRAINT fk_recipe
+          FOREIGN KEY(recipe_id)
+          REFERENCES recipes(recipe_id),
+        CONSTRAINT fk_tag
+          FOREIGN KEY(tag_id)
+          REFERENCES tags(tag_id)
+      );
+    `;
+    console.log('Created recipe_tags table');
+
     return {
-      createPlanRecipes
+      createPlanRecipes,
+      createRecipeTags
     };
   } catch (error) {
     console.error('Error creating tables:', error);
