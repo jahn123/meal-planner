@@ -131,6 +131,49 @@ export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
           <PlusIcon className="w-6" />
         </button>
       </div>
+      {/* Tags */}
+      <label>Choose tags</label>
+      <div className="p-2 grid grid-cols-9">
+        {tags.map((tag, index) => {
+          return (
+            <div
+              key={index}
+            >
+              {allTags.find((_tag) => _tag.tag_id == tag)?.tag_name}
+              <button
+                type="button"
+                onClick={() => setTags(tags.toSpliced(index, 1))}
+              >
+                <TrashIcon className="w-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex">
+        <select
+          name="tags[]"
+          className="w-48 rounded-md p-2 bg-zinc-800"
+          multiple={true}
+          value={tags}
+          onChange={(e) => {
+            if (tags.length >= allTags.length) return;
+            if (tags.includes(e.target.value)) return;
+            setTags([...tags, e.target.value]);
+          }}
+        >
+          {allTags.map((tag, index) => {
+            return (
+              <option
+                key={index}
+                value={tag.tag_id}
+              >
+                {tag.tag_name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
       {/* Steps */}
       <div className="pb-3">
         <label>Enter steps</label>
@@ -176,32 +219,6 @@ export default function CreateRecipeForm({ allTags }: { allTags: Tag[] }) {
             </button>
           </div>
         </div>
-      </div>
-      {/* Tags */}
-      <label>Choose tags</label>
-      <div className="flex">
-        <select
-          name="tags[]"
-          className="w-48 rounded-md p-2 bg-zinc-800"
-          multiple={true}
-          value={tags}
-          onChange={(e) => {
-            if (tags.length >= allTags.length) return;
-            if (tags.includes(e.target.value)) return;
-            setTags([...tags, e.target.value]);
-          }}
-        >
-          {allTags.map((tag, index) => {
-            return (
-              <option
-                key={index}
-                value={tag.tag_id}
-              >
-                {tag.tag_name}
-              </option>
-            );
-          })}
-        </select>
       </div>
       {/* Submit button */}
       <div id="recipe-error" aria-live="polite" aria-atomic="true">

@@ -16,6 +16,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         description={recipe.recipe_description}
         calories={recipe.calories}
         cookTimeMin={recipe.cook_time_min}
+        recipeTags={recipe.tags}
         allTags={tags}
         ingredients={recipe.ingredients}
         steps={recipe.steps}

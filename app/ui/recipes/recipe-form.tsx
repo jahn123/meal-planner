@@ -8,20 +8,26 @@ import { RecipeState, updateRecipe } from '@/app/lib/actions';
 import { Tag } from '@/app/lib/definitions';
 
 export default function RecipeForm ({
-  id, name, description, calories, cookTimeMin, allTags, ingredients, steps
+  id, name, description, calories, cookTimeMin, recipeTags, allTags, ingredients, steps
 }: {
   id: string, name: string, description: string, calories: number, cookTimeMin: number,
-  allTags: Tag[], ingredients: string[], steps: string[]
-}
-) {
+  recipeTags: Tag[], allTags: Tag[], ingredients: string[], steps: string[]
+})
+{
   let initialIngredients = ingredients;
   if (!ingredients) initialIngredients = [''];
   let initialSteps = steps;
   if (!steps) initialSteps = [''];
+  let initialTags = recipeTags;
+  if (!recipeTags) initialTags = [];
   const { cookTimeHr, leftoverCookTimeMin } = convertHrToHrMin(cookTimeMin);
   const [newIngredients, setNewIngredients] = useState(initialIngredients);
   const [newSteps, setNewSteps] = useState(initialSteps);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(initialTags.map((tag) => tag.tag_id));
+  console.log("prop_initial: ", initialTags)
+  console.log("prop_recipe: ", recipeTags)
+  console.log("prop_recipe: ", allTags)
+  console.log("tags: ", tags)
 
   const initialState: RecipeState = { message: null, errors: {} };
   const updateRecipeWithId = updateRecipe.bind(null, id);
@@ -104,6 +110,51 @@ export default function RecipeForm ({
           placeholder={`${leftoverCookTimeMin}`}
           required
         />
+      </div>
+      {/* Tags */}
+      <label>Choose tags</label>
+      {/* Selected Tags */}
+      <div className="p-2 grid grid-cols-9">
+        {tags.map((tag, index) => {
+          return (
+            <div
+              key={index}
+            >
+              {allTags.find((_tag) => _tag.tag_id == tag)?.tag_name}
+              <button
+                type="button"
+                onClick={() => setTags(tags.toSpliced(index, 1))}
+              >
+                <TrashIcon className="w-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      {/* Tag Selector */}
+      <div className="flex">
+        <select
+          name="tags[]"
+          className="w-48 rounded-md p-2 bg-zinc-800"
+          multiple={true}
+          value={tags}
+          onChange={(e) => {
+            if (tags.length >= allTags.length) return;
+            if (tags.includes(e.target.value)) return;
+            setTags([...tags, e.target.value]);
+          }}
+        >
+          {allTags.map((tag, index) => {
+            return (
+              <option
+                key={index}
+                value={tag.tag_id}
+              >
+                {tag.tag_name}
+              </option>
+            );
+          })}
+        </select>
       </div>
       {/* Ingredients */}
       <div className="pb-3">
@@ -193,32 +244,6 @@ export default function RecipeForm ({
             <PlusIcon className="w-6" />
           </button>
         </div>
-      </div>
-      {/* Tags */}
-      <label>Choose tags</label>
-      <div className="flex">
-        <select
-          name="tags[]"
-          className="w-48 rounded-md p-2 bg-zinc-800"
-          multiple={true}
-          value={tags}
-          onChange={(e) => {
-            if (tags.length >= allTags.length) return;
-            if (tags.includes(e.target.value)) return;
-            setTags([...tags, e.target.value]);
-          }}
-        >
-          {allTags.map((tag, index) => {
-            return (
-              <option
-                key={index}
-                value={tag.tag_id}
-              >
-                {tag.tag_name}
-              </option>
-            );
-          })}
-        </select>
       </div>
       {/* Submit button */}
       <div id="recipe-error" aria-live="polite" aria-atomic="true">
