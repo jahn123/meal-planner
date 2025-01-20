@@ -3,10 +3,12 @@ import Link from 'next/link'
 import { fetchRecipeById } from '@/app/lib/data';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { DeleteRecipe } from './buttons';
+import { convertMinToHrMin } from '@/app/lib/utils';
 
 export default async function RecipeView({ id }: { id: string }) {
   const recipe = await fetchRecipeById(id);
-
+  const { cookTimeHr, leftoverCookTimeMin } = convertMinToHrMin(Number(recipe?.cook_time_min));
+  console.log(cookTimeHr, leftoverCookTimeMin)
   return (
     <div>
       <Image 
@@ -20,14 +22,14 @@ export default async function RecipeView({ id }: { id: string }) {
         <div>
           <h1>{recipe?.recipe_name}</h1>
           <h2>{recipe?.recipe_description}</h2>
+          <span>Cook Time: {cookTimeHr} hrs. {leftoverCookTimeMin} min.</span>
         </div>
         <div className="flex justify-end">
           {/* Edit button */}
           <Link
             href={`/dashboard/recipes/${id}/edit`}
-            className="rounded-md p-2 hover:bg-gray-800"
           >
-            <PencilSquareIcon className="w-6" />
+            <PencilSquareIcon className="w-10 rounded-md p-2 hover:bg-gray-800" />
           </Link>
           {/* Delete Button */}
           <DeleteRecipe id={id} />

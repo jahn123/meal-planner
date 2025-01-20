@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { convertHrToHrMin } from '@/app/lib/utils';
+import { convertMinToHrMin } from '@/app/lib/utils';
 
 export default function RecipePreview({
   id, name, calories, cookTimeMin
 }: {
   id: string, name: string, calories: number, cookTimeMin: number
 }) {
-  const { cookTimeHr, leftoverCookTimeMin } = convertHrToHrMin(cookTimeMin);
+  const { cookTimeHr, leftoverCookTimeMin } = convertMinToHrMin(cookTimeMin);
 
   return (
     <div className="rounded-md">
