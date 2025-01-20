@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { convertHrMinToMin } from './utils';
 
 const neonSql = neon(`${process.env.DATABASE_URL}`);
 
@@ -16,6 +17,7 @@ export type RecipeState = {
     name?: string[];
     description?: string[];
     calories?: string[];
+    cookTimeHr?: string[];
     cookTimeMin?: string[];
     ingredients?: string[];
     steps?: string[];
@@ -34,18 +36,20 @@ export type UserState = {
 };
 
 const RecipeFormSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   name: z.string().min(1),
   description: z.string().optional(),
   calories: z.coerce
-    .number().optional(),
+    .number().int().optional(),
+  cookTimeHr: z.coerce
+    .number().int().optional(),
   cookTimeMin: z.coerce
-    .number().optional(),
+    .number().int().optional(),
   ingredients: z.string()
     .array().optional(),
   steps: z.string()
     .array().optional(),
-  tagIDs: z.string()
+  tagIDs: z.string().uuid()
     .array().optional(),
 });
 
@@ -63,6 +67,7 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
     name: formData.get('recipeName'),
     description: formData.get('recipeDescription'),
     calories: formData.get('calories'),
+    cookTimeHr: formData.get('cookTimeHr'),
     cookTimeMin: formData.get('cookTimeMin'),
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
@@ -75,13 +80,14 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
       message: 'Missing Fields. Failed to Create Invoice.',
     });
   }
-  console.log(validatedFields)
-  const { name, description, calories, cookTimeMin, ingredients, steps, tagIDs } = validatedFields.data;
+
+  const { name, description, calories, cookTimeHr, cookTimeMin, ingredients, steps, tagIDs } = validatedFields.data;
+  const totalCookTimeMin = convertHrMinToMin(cookTimeHr, cookTimeMin);
 
   try {
     const recipeResult = await neonSql`
       INSERT INTO recipes (recipe_name, recipe_description, calories, cook_time_min, ingredients, steps)
-      VALUES (${name}, ${description}, ${calories}, ${cookTimeMin}, ${ingredients}, ${steps})
+      VALUES (${name}, ${description}, ${calories}, ${totalCookTimeMin}, ${ingredients}, ${steps})
       RETURNING (recipe_id)
     `;
 
@@ -107,6 +113,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
     name: formData.get('recipeName'),
     description: formData.get('recipeDescription'),
     calories: formData.get('calories'),
+    cookTimeHr: formData.get('cookTimeHr'),
     cookTimeMin: formData.get('cookTimeMin'),
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
@@ -120,7 +127,9 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
     });
   }
 
-  const { name, description, calories, cookTimeMin, ingredients, steps, tagIDs } = validatedFields.data;
+  const { name, description, calories, cookTimeHr, cookTimeMin, ingredients, steps, tagIDs } = validatedFields.data;
+  const totalCookTimeMin = convertHrMinToMin(cookTimeHr, cookTimeMin);
+  console.log(totalCookTimeMin)
 
   try {
     await neonSql`
@@ -128,7 +137,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
       SET recipe_name = ${name},
         recipe_description = ${description},
         calories = ${calories},
-        cook_time_min = ${cookTimeMin},
+        cook_time_min = ${totalCookTimeMin},
         ingredients = ${ingredients},
         steps = ${steps}
       WHERE recipe_id = ${id}
