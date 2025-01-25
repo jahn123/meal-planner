@@ -8,9 +8,9 @@ export default function RecipesTable({ recipes }: { recipes: Recipe[] | undefine
         return (
           <div
             key={recipe.recipe_id}
-            className="flex justify-item-center pb-4 pr-12"
+            className="flex justify-item-center py-4"
           >
-            <RecipePreview 
+            <RecipePreview
               id={recipe.recipe_id}
               name={recipe.recipe_name}
               calories={recipe.calories}
