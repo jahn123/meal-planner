@@ -27,7 +27,7 @@ export type NewTag = {
 export type Tag = {
   tag_id: string;
   tag_name: string;
-  tag_icon: string;
+  tag_icon?: string;
 }
 
 export type Ingredient = {
