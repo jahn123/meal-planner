@@ -19,6 +19,13 @@ export type Recipe = {
   steps: string[];
 };
 
+export type RecipePreviewInfo = {
+  recipe_id: string;
+  recipe_name: string;
+  calories: number;
+  cook_time_min: number;
+}
+
 export type NewTag = {
   tag_name: string;
   tag_icon: string;
