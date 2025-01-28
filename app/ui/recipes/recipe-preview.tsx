@@ -25,13 +25,10 @@ export default function RecipePreview({ id, name, calories, cookTimeMin }: {
           </div>
           <div>
             <div>
-              calories: {calories}
+              calories: {calories ? calories : '--'}
             </div>
             <div>
-              cook time: {cookTimeHr}
-              <span>
-                :{leftoverCookTimeMin}
-              </span>
+              time: {cookTimeHr ? cookTimeHr : '--'} hr. {leftoverCookTimeMin ? leftoverCookTimeMin : '--'} min.
             </div>
           </div>
         </div>

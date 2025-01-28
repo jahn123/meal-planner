@@ -8,7 +8,7 @@ import { convertMinToHrMin } from '@/app/lib/utils';
 export default async function RecipeView({ id }: { id: string }) {
   const recipe = await fetchRecipeById(id);
   const { cookTimeHr, leftoverCookTimeMin } = convertMinToHrMin(Number(recipe?.cook_time_min));
-  console.log(cookTimeHr, leftoverCookTimeMin)
+
   return (
     <div>
       <Image 
