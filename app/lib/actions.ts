@@ -91,7 +91,7 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
       RETURNING (recipe_id)
     `;
 
-    let tagPromises: Promise<any>[] = [];
+    const tagPromises: Promise<any>[] = [];
     tagIDs?.forEach((tagID) => { tagPromises.push(neonSql`
       INSERT INTO recipe_tags (recipe_id, tag_id)
       VALUES (${recipeResult[0].recipe_id}, ${tagID})
@@ -148,7 +148,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
       WHERE recipe_id = ${id}
     `;
 
-    let tagPromises: Promise<any>[] = [];
+    const tagPromises: Promise<any>[] = [];
     tagIDs?.forEach((tagID) => { tagPromises.push(neonSql`
       INSERT INTO recipe_tags (recipe_id, tag_id)
       VALUES (${id}, ${tagID})
