@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { Recipe, RecipePreviewInfo } from '@/app/lib/definitions'
+import { useState, useActionState } from 'react';
+import { Recipe, RecipePreviewInfo } from '@/app/lib/definitions';
 import RecipeSearch from '@/app/ui/recipe-search';
 import RecipesTable from '@/app/ui/recipes/recipes-table';
+import { createPlan, PlanState } from '@/app/lib/actions';
 
 export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
   const [addedRecipes, setAddedRecipes] = useState<RecipePreviewInfo[]>([]);
+
+  const initialState: PlanState = { message: null, errors: {} };
+  const [state, formAction] = useActionState(createPlan, initialState);
 
   function handleAddClick(recipeId: string, recipeName: string, calories: number, cookTimeMin: number) {
     setAddedRecipes([...addedRecipes, { 
@@ -17,27 +21,48 @@ export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
     }]);
   }
 
-  function handleRemoveClick(recipeId: string) {
-    console.log("removed")
-    setAddedRecipes(addedRecipes.filter((recipe) => recipe.recipe_id !== recipeId));
+  function handleRemoveClick(recipeId: string, recipeName: string, removeIndex: number) {
+    setAddedRecipes(addedRecipes.filter((recipe, index) => index !== removeIndex));
   }
 
   return (
     <>
-      <form>
+      <form action={formAction}>
         <label>Enter plan name</label>
-        <div>
+        <div className="flex">
+        <div className="flex justify-start">
           <input
             className="rounded-md p-2 bg-zinc-800 focus:outline-none focus:outline-slate-600 hover:bg-zinc-700"
+            name="planName"
             type="text"
           />
+        </div>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+          >
+            Create plan
+          </button>
+        </div>
         </div>
         <label>Enter plan description</label>
         <div>
           <input
             className="rounded-md p-2 bg-zinc-800 focus:outline-none focus:outline-slate-600 hover:bg-zinc-700"
+            name="planDescription"
+            type="text"
           />
         </div>
+        {addedRecipes.map((recipe, index) => {
+          return (
+            <input
+              key={index}
+              type="hidden"
+              name="recipeIDs"
+              value={recipe.recipe_id}
+            />
+          );
+      })}
       </form>
       <span>Added recipes</span>
       <RecipesTable recipes={addedRecipes ? addedRecipes : []} handleButtonClick={handleRemoveClick} buttonAction='remove' />
