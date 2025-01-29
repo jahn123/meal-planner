@@ -31,7 +31,7 @@ export default function RecipesTable({ recipes, handleButtonClick, buttonAction 
                   handleButtonClick(recipe.recipe_id, recipe.recipe_name, recipe.calories, recipe.cook_time_min);
                 }
                 else if (handleButtonClick && buttonAction == 'remove') {
-                  handleButtonClick(recipe.recipe_id, recipe.recipe_name, recipe.calories, recipe.cook_time_min);
+                  handleButtonClick(recipe.recipe_id, recipe.recipe_name, index, recipe.cook_time_min);
                 }
               }}
             >
