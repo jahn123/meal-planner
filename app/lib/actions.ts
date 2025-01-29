@@ -12,6 +12,25 @@ import { convertHrMinToMin } from './utils';
 
 const neonSql = neon(`${process.env.DATABASE_URL}`);
 
+export type UserState = {
+  errors?: {
+    username?: string[];
+    // email?: string[];
+    password?: string[];
+  };
+  message?: string | null;
+};
+
+export type PlanState = {
+  errors?: {
+    name?: string[];
+    description?: string[];
+    recipeIDs?: string[];
+    tagIDs?: string[];
+  };
+  message?: string | null;
+};
+
 export type RecipeState = {
   errors?: {
     name?: string[];
@@ -26,14 +45,12 @@ export type RecipeState = {
   message?: string | null;
 };
 
-export type UserState = {
-  errors?: {
-    username?: string[];
-    // email?: string[];
-    password?: string[];
-  };
-  message?: string | null;
-};
+const UserFormSchema = z.object({
+  id: z.string().uuid(),
+  username: z.string(),
+  // email: z.string().optional(),
+  password: z.string().min(6),
+});
 
 const RecipeFormSchema = z.object({
   id: z.string().uuid(),
@@ -53,16 +70,63 @@ const RecipeFormSchema = z.object({
     .array().optional(),
 });
 
-const UserFormSchema = z.object({
-  id: z.string(),
-  username: z.string(),
-  // email: z.string().optional(),
-  password: z.string().min(6),
+const PlanFormSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  description: z.string(),
+  recipeIDs: z.string().uuid()
+    .array(),
+  tagIDs: z.string().uuid()
+    .array().optional(),
 });
+
+const CreatePlan = PlanFormSchema.omit({ id: true });
+export async function createPlan(prevState: PlanState, formData: FormData) {
+  // console.log(formData)
+  const validatedFields = CreatePlan.safeParse({
+    name: formData.get('planName'),
+    description: formData.get('planDescription'),
+    recipeIDs: formData.getAll('recipeIDs'),
+    tagIDs: formData.getAll('tagIDs'),
+  });
+
+  if (!validatedFields.success) {
+    return ({
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    });
+  }
+
+  const { name, description, recipeIDs, tagIDs } = validatedFields.data;
+  // console.log(validatedFields.data)
+  try {
+    const result = await sql`
+      INSERT INTO plans (plan_name, plan_description)
+      VALUES (${name}, ${description})
+      RETURNING (plan_id)
+    `;
+    const newPlanId = result.rows[0].plan_id;
+
+    const recipePromises: Promise<any>[] = [];
+    recipeIDs?.forEach((recipeID) => {
+      recipePromises.push(neonSql`
+        INSERT INTO recipe_tags (recipe_id, tag_id)
+        VALUES (${newPlanId}, ${recipeID})
+      `);
+    });
+    await Promise.all(recipePromises);
+  } catch (error) {
+    console.error(error);
+    return { message: 'Database Error: ' };
+  }
+
+  revalidatePath('/dashboard/plans');
+  redirect('/dashboard/plans');
+}
 
 const CreateRecipe = RecipeFormSchema.omit({ id: true });
 export async function createRecipe(prevState: RecipeState, formData: FormData) {
-  console.log(formData)
+  // console.log(formData)
   const validatedFields = CreateRecipe.safeParse({
     name: formData.get('recipeName'),
     description: formData.get('recipeDescription'),
@@ -92,10 +156,11 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
     `;
 
     const tagPromises: Promise<any>[] = [];
-    tagIDs?.forEach((tagID) => { tagPromises.push(neonSql`
-      INSERT INTO recipe_tags (recipe_id, tag_id)
-      VALUES (${recipeResult[0].recipe_id}, ${tagID})
-    `);
+    tagIDs?.forEach((tagID) => {
+      tagPromises.push(neonSql`
+        INSERT INTO recipe_tags (recipe_id, tag_id)
+        VALUES (${recipeResult[0].recipe_id}, ${tagID})
+      `);
     });
     await Promise.all(tagPromises);
   } catch (error) {
