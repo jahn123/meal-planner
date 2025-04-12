@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { convertHrToHrMin } from '@/app/lib/utils';
+import { convertMinToHrMin } from '@/app/lib/utils';
 import { useActionState, useState } from 'react';
 import { RecipeState, updateRecipe } from '@/app/lib/actions';
 import { Tag } from '@/app/lib/definitions';
@@ -20,14 +20,10 @@ export default function RecipeForm ({
   if (!steps) initialSteps = [''];
   let initialTags = recipeTags;
   if (!recipeTags) initialTags = [];
-  const { cookTimeHr, leftoverCookTimeMin } = convertHrToHrMin(cookTimeMin);
+  const { cookTimeHr, leftoverCookTimeMin } = convertMinToHrMin(cookTimeMin);
   const [newIngredients, setNewIngredients] = useState(initialIngredients);
   const [newSteps, setNewSteps] = useState(initialSteps);
   const [tags, setTags] = useState<string[]>(initialTags.map((tag) => tag.tag_id));
-  console.log("prop_initial: ", initialTags)
-  console.log("prop_recipe: ", recipeTags)
-  console.log("prop_recipe: ", allTags)
-  console.log("tags: ", tags)
 
   const initialState: RecipeState = { message: null, errors: {} };
   const updateRecipeWithId = updateRecipe.bind(null, id);
@@ -35,7 +31,7 @@ export default function RecipeForm ({
 
   return (
     <form id="recipe-form" action={formAction}>
-      {/* Meal picture */}
+      {/* Picture */}
       <div>
         <Image 
           src="/recipe-image.jpg"
@@ -44,7 +40,7 @@ export default function RecipeForm ({
           alt="Picture of the meal"
         />
       </div>
-      {/* Meal name */}
+      {/* Name */}
       <div>
         <input
           className="peer block rounded-md w-9/12 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
@@ -98,7 +94,7 @@ export default function RecipeForm ({
           min="0"
           defaultValue={`${cookTimeHr}`}
           placeholder={`${cookTimeHr}`}
-          required
+          // required
         />
         <input
           className="peer block rounded-md w-12 py-[9px] pl-2 bg-zinc-800 text-sm outline-2 placeholder:text-gray-500"
@@ -108,7 +104,7 @@ export default function RecipeForm ({
           min="0"
           defaultValue={`${leftoverCookTimeMin}`}
           placeholder={`${leftoverCookTimeMin}`}
-          required
+          // required
         />
       </div>
       {/* Tags */}

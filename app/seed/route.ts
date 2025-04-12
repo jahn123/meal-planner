@@ -18,16 +18,32 @@ async function createPrimaryTables() {
 
     const createPlans = await client.sql`
       CREATE TABLE IF NOT EXISTS plans (
-        plan_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY
+        plan_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        plan_name VARCHAR(75) NOT NULL UNIQUE,
+        plan_description VARCHAR(300)
       );
     `;
     console.log('Created plans table');
+
+    const createScheduledPlans = await client.sql`
+      CREATE TABLE IF NOT EXISTS scheduled_plans (
+        scheduled_plan_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        plan_id UUID NOT NULL,
+        plan_week DATE NOT NULL,
+        CONSTRAINT fk_plan
+          FOREIGN KEY(plan_id)
+          REFERENCES plans(plan_id)
+          ON DELETE CASCADE
+      );
+    `;
+    console.log('Created scheduled_plans table');
 
     const createRecipes = await client.sql`
       CREATE TABLE IF NOT EXISTS recipes (
         recipe_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         recipe_name VARCHAR(75) NOT NULL UNIQUE,
         recipe_description VARCHAR(300),
+        is_meal boolean,
         calories INT,
         cook_time_min INT,
         ingredients VARCHAR[],
@@ -48,6 +64,7 @@ async function createPrimaryTables() {
     return {
       createUsers,
       createPlans,
+      createScheduledPlans,
       createRecipes,
       createTags,
     };
@@ -66,7 +83,8 @@ async function createSecondaryTables() {
         recipe_id UUID NOT NULL,
         CONSTRAINT fk_plan
           FOREIGN KEY(plan_id)
-          REFERENCES plans(plan_id),
+          REFERENCES plans(plan_id)
+          ON DELETE CASCADE,
         CONSTRAINT fk_recipe
           FOREIGN KEY(recipe_id)
           REFERENCES recipes(recipe_id)
@@ -81,7 +99,8 @@ async function createSecondaryTables() {
         tag_id UUID NOT NULL,
         CONSTRAINT fk_recipe
           FOREIGN KEY(recipe_id)
-          REFERENCES recipes(recipe_id),
+          REFERENCES recipes(recipe_id)
+          ON DELETE CASCADE,
         CONSTRAINT fk_tag
           FOREIGN KEY(tag_id)
           REFERENCES tags(tag_id)
@@ -89,9 +108,26 @@ async function createSecondaryTables() {
     `;
     console.log('Created recipe_tags table');
 
+    const createPlanTags = await client.sql`
+      CREATE TABLE IF NOT EXISTS plan_tags (
+        plan_tag_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        plan_id UUID NOT NULL,
+        tag_id UUID NOT NULL,
+        CONSTRAINT fk_plan
+          FOREIGN KEY(plan_id)
+          REFERENCES plans(plan_id)
+          ON DELETE CASCADE,
+        CONSTRAINT fk_tag
+          FOREIGN KEY(tag_id)
+          REFERENCES tags(tag_id)
+      );
+    `;
+    console.log('Created plan_tags table');
+
     return {
       createPlanRecipes,
-      createRecipeTags
+      createRecipeTags,
+      createPlanTags
     };
   } catch (error) {
     console.error('Error creating tables:', error);

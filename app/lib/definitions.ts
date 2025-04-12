@@ -5,7 +5,22 @@ export type User = {
 }
 
 export type Plan = {
-  plan_id: string,
+  plan_id: string;
+  plan_name: string;
+  plan_description: string;
+};
+
+export type FullPlanInfo = {
+  plan_id: string;
+  plan_name: string;
+  plan_description: string;
+  recipes: RecipePreviewInfo[];
+};
+
+export type PlanPreviewInfo = {
+  plan_id: string;
+  plan_name: string;
+  recipes: RecipePreviewInfo[];
 };
 
 export type Recipe = {
@@ -19,6 +34,13 @@ export type Recipe = {
   steps: string[];
 };
 
+export type RecipePreviewInfo = {
+  recipe_id: string;
+  recipe_name: string;
+  calories: number;
+  cook_time_min: number;
+}
+
 export type NewTag = {
   tag_name: string;
   tag_icon: string;
@@ -27,7 +49,7 @@ export type NewTag = {
 export type Tag = {
   tag_id: string;
   tag_name: string;
-  tag_icon: string;
+  tag_icon?: string;
 }
 
 export type Ingredient = {
