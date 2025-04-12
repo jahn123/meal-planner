@@ -5,7 +5,22 @@ export type User = {
 }
 
 export type Plan = {
-  plan_id: string,
+  plan_id: string;
+  plan_name: string;
+  plan_description: string;
+};
+
+export type FullPlanInfo = {
+  plan_id: string;
+  plan_name: string;
+  plan_description: string;
+  recipes: RecipePreviewInfo[];
+};
+
+export type PlanPreviewInfo = {
+  plan_id: string;
+  plan_name: string;
+  recipes: RecipePreviewInfo[];
 };
 
 export type Recipe = {
