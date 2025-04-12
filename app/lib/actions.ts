@@ -110,7 +110,7 @@ export async function createPlan(prevState: PlanState, formData: FormData) {
     const recipePromises: Promise<any>[] = [];
     recipeIDs?.forEach((recipeID) => {
       recipePromises.push(neonSql`
-        INSERT INTO recipe_tags (recipe_id, tag_id)
+        INSERT INTO plan_recipes (plan_id, recipe_id)
         VALUES (${newPlanId}, ${recipeID})
       `);
     });
@@ -122,6 +122,66 @@ export async function createPlan(prevState: PlanState, formData: FormData) {
 
   revalidatePath('/dashboard/plans');
   redirect('/dashboard/plans');
+}
+
+const UpdatePlan = PlanFormSchema.omit({ id: true });
+export async function updatePlan(id: string, prevState: PlanState, formData: FormData) {
+  // console.log(formData)
+  const validatedFields = UpdatePlan.safeParse({
+    name: formData.get('planName'),
+    description: formData.get('planDescription'),
+    recipeIDs: formData.getAll('recipeIDs'),
+    tagIDs: formData.getAll('tagIDs'),
+  });
+
+  if (!validatedFields.success) {
+    return ({
+      message: 'Missing Fields. Failed to Create Invoice.',
+      errors: validatedFields.error.flatten().fieldErrors,
+    });
+  }
+  // console.log(validatedFields.data)
+  const { name, description, recipeIDs } = validatedFields.data;
+
+  try {
+    // await sql`
+    //   UPDATE plans
+    //   SET
+    //     plan_name = ${name},
+    //     plan_description = ${description}
+    //   WHERE plan_id = ${id}
+    // `;
+
+    await sql`
+      DELETE FROM plan_recipes
+      WHERE plan_id = ${id}
+    `;
+
+    // (${id}, ${recipeIDs[0]})
+    // console.log(recipeIDs)
+    // const values = recipeIDs.map((recipeID) => `(${id}, ${recipeID})`).join(', ');
+    // console.log(values)
+    // const query = `
+    //   INSERT INTO plan_recipes (plan_id, recipe_id)
+    //   VALUES ${values}
+    // `;
+    // await sql.query(query, values);
+    const recipePromises: Promise<any>[] = [];
+    recipeIDs?.forEach((recipeID) => { 
+      recipePromises.push(
+        sql`
+          INSERT INTO plan_recipes (plan_id, recipe_id)
+          VALUES
+            (${id}, ${recipeID})`
+      );
+    });
+  } catch (error) {
+    console.error(error);
+    return { message: 'Database Error: Failed to Update' };
+  }
+
+  revalidatePath(`/dashboard/plans/${id}/view`);
+  redirect(`/dashboard/plans/${id}/view`);
 }
 
 const CreateRecipe = RecipeFormSchema.omit({ id: true });
