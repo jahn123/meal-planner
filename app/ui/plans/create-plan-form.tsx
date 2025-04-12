@@ -29,21 +29,17 @@ export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
     <>
       <form action={formAction}>
         <label>Enter plan name</label>
-        <div className="flex">
-        <div className="flex justify-start">
+        <div className="flex justify-between">
           <input
             className="rounded-md p-2 bg-zinc-800 focus:outline-none focus:outline-slate-600 hover:bg-zinc-700"
             name="planName"
             type="text"
           />
-        </div>
-        <div className="flex justify-end">
           <button
             type="submit"
           >
             Create plan
           </button>
-        </div>
         </div>
         <label>Enter plan description</label>
         <div>
@@ -65,6 +61,7 @@ export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
       })}
       </form>
       <span>Added recipes</span>
+      {addedRecipes.length === 0 ? <div>Add some recipes to get started!</div> : <></>}
       <RecipesTable recipes={addedRecipes ? addedRecipes : []} handleButtonClick={handleRemoveClick} buttonAction='remove' />
       <RecipeSearch placeholder="Search Recipes..." />
       <RecipesTable recipes={recipes ? recipes : []} handleButtonClick={handleAddClick} buttonAction='add' />
