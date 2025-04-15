@@ -29,7 +29,7 @@ export default function PlanCalendar() {
             key={index}
             type="button"
           >
-            <div className="p-2 bg-zinc-800 hover:bg-slate-800">
+            <div className="p-2 hover:bg-slate-800">
               <div>{startDate.slice(0, startDate.length - 5)}</div>
               <div>-</div>
               <div>{endDate.slice(0, endDate.length - 5)}</div>

@@ -140,8 +140,8 @@ export async function updatePlan(id: string, prevState: PlanState, formData: For
       errors: validatedFields.error.flatten().fieldErrors,
     });
   }
-  // console.log(validatedFields.data)
-  const { name, description, recipeIDs } = validatedFields.data;
+  console.log(validatedFields.data)
+  const { name, description, recipeIDs, tagIDs } = validatedFields.data;
 
   try {
     // await sql`
@@ -154,6 +154,10 @@ export async function updatePlan(id: string, prevState: PlanState, formData: For
 
     await sql`
       DELETE FROM plan_recipes
+      WHERE plan_id = ${id}
+    `;
+    await sql`
+      DELETE FROM plan_tags
       WHERE plan_id = ${id}
     `;
 
@@ -175,6 +179,18 @@ export async function updatePlan(id: string, prevState: PlanState, formData: For
             (${id}, ${recipeID})`
       );
     });
+    await Promise.all(recipePromises);
+    const tagPromises: Promise<any>[] = [];
+    tagIDs?.forEach((tagID) => {
+      tagPromises.push(
+        sql`
+          INSERT INTO plan_tags (plan_id, tag_id)
+          VALUES
+            (${id}, ${tagID})
+        `
+      );
+    });
+    await Promise.all(tagPromises);
   } catch (error) {
     console.error(error);
     return { message: 'Database Error: Failed to Update' };

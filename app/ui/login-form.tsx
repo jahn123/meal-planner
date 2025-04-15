@@ -1,92 +1,80 @@
 'use client';
 
-import { ArrowRightIcon, ExclamationCircleIcon } from '@heroicons/react/20/solid';
+import { ExclamationCircleIcon } from '@heroicons/react/20/solid';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useActionState } from 'react';
 import { authenticate } from '../lib/actions';
 
-export default function LoginForm() {
+export default function LoginForm({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
   const [errorMessage, formAction, isPending] = useActionState(
     authenticate,
     undefined,
   );
 
   return (
-    <form action={formAction} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8 text-black">
-        <h1>
-          Log in to continue.
-        </h1>
-        <div className="w-full">
-          <label
-            className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-            htmlFor="username"
-          >
-            Username
-          </label>
-          <div>
-            <input 
-              className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-              id="username"
-              type="text"
-              name="username"
-              placeholder="Username"
-              required
-            />
-          </div>
-          {/* <label
-            className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-            htmlFor="username"
-          >
-            Email
-          </label>
-          <div>
-            <input 
-              className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Email"
-              required
-            />
-          </div> */}
-          <label
-            className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-            htmlFor="username"
-          >
-            Password
-          </label>
-          <div>
-            <input 
-              className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-              id="password"
-              type="password"
-              name="password"
-              placeholder="Password"
-              required
-            />
-            {/* put logo here */}
-          </div>
-        </div>
-        <div>
-          <button
-            aria-disabled={isPending}
-          >
-            <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
-          </button>
-        </div>
-        <div
-          className="flex h-8 items-end space-x-1"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {errorMessage && (
-            <>
-              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{errorMessage}</p>
-            </>
-          )}
-        </div>
-      </div>
-    </form>
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>
+            Enter your username and password below to login to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={formAction}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                {/* <input id="username" type="text" required /> */}
+                <Input id="username" name="username" type="username" required />
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                </div>
+                <Input id="password" name="password" type="password" required />
+              </div>
+              <div
+                className="flex h-4 items-end space-x-1"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {errorMessage && (
+                  <>
+                    <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                    <p className="text-sm text-red-500">{errorMessage}</p>
+                  </>
+                )}
+              </div>
+              <Button type="submit" className="w-full">
+                Login
+              </Button>
+              {/* <Button variant="outline" className="w-full">
+                Login with Google
+              </Button> */}
+            </div>
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <a href="/signup" className="underline underline-offset-4">
+                Sign up
+              </a>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

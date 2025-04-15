@@ -23,7 +23,7 @@ export default function RecipeSearch({ placeholder }: { placeholder: string }) {
   return (
     <div className="flex justify-center">
       <input
-        className="w-8/12 rounded-md p-2 bg-zinc-800 focus:outline-none focus:outline-slate-600 hover:bg-zinc-700"
+        className="w-8/12 rounded-md p-2 bg-gray-200 focus:outline-none focus:outline-gray-400 hover:bg-zinc-300"
         type="text"
         placeholder={placeholder}
         defaultValue={searchParams.get('query')?.toString()}

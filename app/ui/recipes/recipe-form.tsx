@@ -12,8 +12,7 @@ export default function RecipeForm ({
 }: {
   id: string, name: string, description: string, calories: number, cookTimeMin: number,
   recipeTags: Tag[], allTags: Tag[], ingredients: string[], steps: string[]
-})
-{
+}) {
   let initialIngredients = ingredients;
   if (!ingredients) initialIngredients = [''];
   let initialSteps = steps;
@@ -140,10 +139,10 @@ export default function RecipeForm ({
             setTags([...tags, e.target.value]);
           }}
         >
-          {allTags.map((tag, index) => {
+          {allTags.map((tag) => {
             return (
               <option
-                key={index}
+                key={tag.tag_id}
                 value={tag.tag_id}
               >
                 {tag.tag_name}

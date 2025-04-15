@@ -168,8 +168,17 @@ export async function fetchPlanById(id: string) {
       ON recipes.recipe_id = plan_recipes.recipe_id
       WHERE plan_recipes.plan_id = ${id}
     `;
+    const planTagData = await sql<Tag>`
+      SELECT
+        plan_tags.tag_id,
+        tags.tag_name
+      FROM tags
+      INNER JOIN plan_tags
+      ON tags.tag_id = plan_tags.tag_id
+      WHERE plan_tags.plan_id = ${id}
+    `;
 
-    return { ...planData.rows[0], recipes: planRecipeData.rows };
+    return { ...planData.rows[0], recipes: planRecipeData.rows, tags: planTagData.rows };
   } catch(error) {
     console.error(error);
   }
