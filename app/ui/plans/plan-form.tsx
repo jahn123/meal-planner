@@ -5,14 +5,21 @@ import { FullPlanInfo, RecipePreviewInfo } from '@/app/lib/definitions';
 import RecipesTable from '../recipes/recipes-table';
 import RecipeSearch from '../recipe-search';
 import { PlanState, updatePlan } from '@/app/lib/actions';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tag } from '@/app/lib/definitions';
 
-export default function PlanForm({ plan, recipes }: { plan: FullPlanInfo, recipes: RecipePreviewInfo[] | [] }) {
+export default function PlanForm({ 
+  plan, recipes, allTags
+}: {
+  plan: FullPlanInfo, recipes: RecipePreviewInfo[] | [], allTags: Tag[]
+}) {
   const [addedRecipes, setAddedRecipes] = useState<RecipePreviewInfo[]>(plan.recipes);
 
   const initialState: PlanState = { message: null, errors: {} };
   const updatePlanWithId = updatePlan.bind(null, plan.plan_id);
   const [state, formAction] = useActionState(updatePlanWithId, initialState);
-
+  const [tags, setTags] = useState<string[]>(plan.tags?.map((tag) => tag.tag_id));
+  console.log(tags)
   function handleAddClick(recipeId: string, recipeName: string, calories: number, cookTimeMin: number) {
     setAddedRecipes([...addedRecipes, { 
       recipe_id: recipeId,
@@ -24,6 +31,10 @@ export default function PlanForm({ plan, recipes }: { plan: FullPlanInfo, recipe
 
   function handleRemoveClick(recipeId: string, recipeName: string, removeIndex: number) {
     setAddedRecipes(addedRecipes.filter((recipe, index) => index !== removeIndex));
+  }
+
+  function handleTagChange(tagIDs: string[]) {
+    setTags(tagIDs);
   }
 
   return (
@@ -54,15 +65,42 @@ export default function PlanForm({ plan, recipes }: { plan: FullPlanInfo, recipe
             defaultValue={plan.plan_description}
           />
         </div>
-        {addedRecipes.map((recipe, index) => {
+        <ToggleGroup
+          type='multiple'
+          value={tags}
+          onValueChange={handleTagChange}
+        >
+          {allTags.map((tag) => {
             return (
-              <input
-                key={index}
-                type="hidden"
-                name="recipeIDs"
-                value={recipe.recipe_id}
-              />
+              <ToggleGroupItem
+                key={tag.tag_id}
+                value={tag.tag_id}
+                aria-label={tag.tag_name}
+              >
+                {tag.tag_name}
+              </ToggleGroupItem>
             );
+          })}
+        </ToggleGroup>
+        {tags.map((tagId) => {
+          return (
+            <input
+              key={tagId}
+              type="hidden"
+              name="tagIDs"
+              value={tagId}
+            />
+          );
+        })}
+        {addedRecipes.map((recipe, index) => {
+          return (
+            <input
+              key={index}
+              type="hidden"
+              name="recipeIDs"
+              value={recipe.recipe_id}
+            />
+          );
         })}
       </form>
       <span>Added recipes</span>

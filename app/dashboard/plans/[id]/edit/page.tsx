@@ -1,5 +1,5 @@
 import PlanForm from '@/app/ui/plans/plan-form';
-import { fetchPlanById, fetchPagedRecipesResult } from '@/app/lib/data';
+import { fetchPlanById, fetchPagedRecipesResult, fetchTags } from '@/app/lib/data';
 
 export default async function Page(props: { params: Promise<{ id: string }>, searchParams?: Promise<{
   query?: string;
@@ -14,10 +14,16 @@ export default async function Page(props: { params: Promise<{ id: string }>, sea
 
   const recipes = query ? await fetchPagedRecipesResult(query, currentPage) : '';
 
+  const allTags = await fetchTags();
+
   if (!planData) return;
   return (
     <main>
-      <PlanForm plan={planData} recipes={recipes ? recipes : []} />
+      <PlanForm
+        plan={planData}
+        recipes={recipes ? recipes : []}
+        allTags={allTags ? allTags : []}
+      />
     </main>
   );
 }
