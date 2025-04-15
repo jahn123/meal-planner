@@ -1,13 +1,16 @@
 'use client';
 
+import { createPlan, PlanState } from '@/app/lib/actions';
 import { useState, useActionState } from 'react';
 import { Recipe, RecipePreviewInfo } from '@/app/lib/definitions';
 import RecipeSearch from '@/app/ui/recipe-search';
 import RecipesTable from '@/app/ui/recipes/recipes-table';
-import { createPlan, PlanState } from '@/app/lib/actions';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tag } from '@/app/lib/definitions';
 
-export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
+export default function CreatePlanForm({ recipes, allTags }: { recipes: Recipe[], allTags: Tag[] }) {
   const [addedRecipes, setAddedRecipes] = useState<RecipePreviewInfo[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
 
   const initialState: PlanState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createPlan, initialState);
@@ -23,6 +26,10 @@ export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
 
   function handleRemoveClick(recipeId: string, recipeName: string, removeIndex: number) {
     setAddedRecipes(addedRecipes.filter((recipe, index) => index !== removeIndex));
+  }
+
+  function handleTagChange(tagIDs: string[]) {
+    setTags(tagIDs);
   }
 
   return (
@@ -49,6 +56,33 @@ export default function CreatePlanForm({ recipes }: { recipes: Recipe[] }) {
             type="text"
           />
         </div>
+        <ToggleGroup
+          type='multiple'
+          value={tags}
+          onValueChange={handleTagChange}
+        >
+          {allTags.map((tag) => {
+            return (
+              <ToggleGroupItem
+                key={tag.tag_id}
+                value={tag.tag_id}
+                aria-label={tag.tag_name}
+              >
+                {tag.tag_name}
+              </ToggleGroupItem>
+            );
+          })}
+        </ToggleGroup>
+        {tags.map((tagId) => {
+          return (
+            <input
+              key={tagId}
+              type="hidden"
+              name="tagIDs"
+              value={tagId}
+            />
+          );
+        })}
         {addedRecipes.map((recipe, index) => {
           return (
             <input

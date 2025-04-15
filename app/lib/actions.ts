@@ -115,6 +115,17 @@ export async function createPlan(prevState: PlanState, formData: FormData) {
       `);
     });
     await Promise.all(recipePromises);
+    const tagPromises: Promise<any>[] = [];
+    tagIDs?.forEach((tagID) => {
+      tagPromises.push(
+        sql`
+          INSERT INTO plan_tags (plan_id, tag_id)
+          VALUES
+            (${newPlanId}, ${tagID})
+        `
+      );
+    });
+    await Promise.all(tagPromises);
   } catch (error) {
     console.error(error);
     return { message: 'Database Error: ' };
