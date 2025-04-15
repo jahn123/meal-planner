@@ -12,8 +12,7 @@ export default function RecipeForm ({
 }: {
   id: string, name: string, description: string, calories: number, cookTimeMin: number,
   recipeTags: Tag[], allTags: Tag[], ingredients: string[], steps: string[]
-})
-{
+}) {
   let initialIngredients = ingredients;
   if (!ingredients) initialIngredients = [''];
   let initialSteps = steps;

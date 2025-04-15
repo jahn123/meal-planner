@@ -38,7 +38,6 @@ export default function SignUpForm({
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
-                {/* <input id="username" type="text" required /> */}
                 <Input id="username" name="username" type="username" required />
               </div>
               <div className="grid gap-2">
