@@ -238,7 +238,7 @@ export async function createRecipe(prevState: RecipeState, formData: FormData) {
     cookTimeMin: formData.get('cookTimeMin'),
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
-    tagIDs: formData.getAll('tags[]'),
+    tagIDs: formData.getAll('tagIDs'),
   });
 
   if (!validatedFields.success) {
@@ -285,7 +285,7 @@ export async function updateRecipe(id: string, prevState: RecipeState, formData:
     cookTimeMin: formData.get('cookTimeMin'),
     ingredients: formData.getAll('ingredient'),
     steps: formData.getAll('step'),
-    tagIDs: formData.getAll('tags[]'),
+    tagIDs: formData.getAll('tagIDs'),
   });
 
   if (!validatedFields.success) {
