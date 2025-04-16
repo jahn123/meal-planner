@@ -1,3 +1,4 @@
+import { DeletePlan } from './buttons';
 import { PlanPreviewInfo } from '@/app/lib/definitions';
 import RecipePreview from '../recipes/recipe-preview';
 import Link from 'next/link';
@@ -18,12 +19,7 @@ export default function PlansTable({ plans }: { plans: PlanPreviewInfo[] }) {
                   Edit
                 </Link>
                 {/* </button> */}
-                <button
-                  type="button"
-                  className="px-1"
-                >
-                  Delete
-                </button>
+                <DeletePlan id={plan.plan_id} />
               </div>
             </div>
             <div className="flex justify-around grid grid-cols-3">

@@ -115,6 +115,17 @@ export async function createPlan(prevState: PlanState, formData: FormData) {
       `);
     });
     await Promise.all(recipePromises);
+    const tagPromises: Promise<any>[] = [];
+    tagIDs?.forEach((tagID) => {
+      tagPromises.push(
+        sql`
+          INSERT INTO plan_tags (plan_id, tag_id)
+          VALUES
+            (${newPlanId}, ${tagID})
+        `
+      );
+    });
+    await Promise.all(tagPromises);
   } catch (error) {
     console.error(error);
     return { message: 'Database Error: ' };
@@ -198,6 +209,22 @@ export async function updatePlan(id: string, prevState: PlanState, formData: For
 
   revalidatePath(`/dashboard/plans/${id}/view`);
   redirect(`/dashboard/plans/${id}/view`);
+}
+
+export async function deletePlan(id: string) {
+  try {
+    await sql`
+      DELETE FROM plans
+      WHERE plan_id = ${id}
+    `;
+    revalidatePath('/dashboard/plans');
+    // return { message: 'Deleted Plan.' };
+  } catch (error) {
+    console.error(error);
+    // return { message: 'Database Error: Failed to Delete' };
+  }
+
+  redirect('/dashboard/plans');
 }
 
 const CreateRecipe = RecipeFormSchema.omit({ id: true });
@@ -311,8 +338,8 @@ export async function deleteRecipe(id: string) {
       DELETE FROM recipes
       WHERE recipe_id = ${id}
     `;
-    revalidatePath('/dashboard/invoices');
-    // return { message: 'Deleted Invoice.' };
+    revalidatePath('/dashboard/recipes');
+    // return { message: 'Deleted Recipe.' };
   } catch (error) {
     console.error(error);
     // return { message: 'Database Error: Failed to Delete' };
