@@ -22,10 +22,10 @@ export default async function Page(props: {
       <h1 className="flex justify-between pb-4">
         Recipes
         <Link
-          className="rounded-md p-1 bg-gray-900"
+          className="rounded-md p-1 bg-gray-300"
           href='/dashboard/recipes/create'
         >
-          <PlusIcon className="w-6 bg-gray-900" />
+          <PlusIcon className="w-6" />
         </Link>
       </h1>
       <RecipeSearch placeholder="Search Recipes..." />
