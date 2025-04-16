@@ -211,6 +211,22 @@ export async function updatePlan(id: string, prevState: PlanState, formData: For
   redirect(`/dashboard/plans/${id}/view`);
 }
 
+export async function deletePlan(id: string) {
+  try {
+    await sql`
+      DELETE FROM plans
+      WHERE plan_id = ${id}
+    `;
+    revalidatePath('/dashboard/plans');
+    // return { message: 'Deleted Plan.' };
+  } catch (error) {
+    console.error(error);
+    // return { message: 'Database Error: Failed to Delete' };
+  }
+
+  redirect('/dashboard/plans');
+}
+
 const CreateRecipe = RecipeFormSchema.omit({ id: true });
 export async function createRecipe(prevState: RecipeState, formData: FormData) {
   // console.log(formData)
@@ -322,8 +338,8 @@ export async function deleteRecipe(id: string) {
       DELETE FROM recipes
       WHERE recipe_id = ${id}
     `;
-    revalidatePath('/dashboard/invoices');
-    // return { message: 'Deleted Invoice.' };
+    revalidatePath('/dashboard/recipes');
+    // return { message: 'Deleted Recipe.' };
   } catch (error) {
     console.error(error);
     // return { message: 'Database Error: Failed to Delete' };
