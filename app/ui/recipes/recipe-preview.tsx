@@ -17,9 +17,9 @@ export default function RecipePreview({ id, name, calories, cookTimeMin }: {
             width={400}
             height={300}
             alt={`image of ${name}`}
-            className="rounded-md bg-gray-900"
+            className="rounded-md bg-gray-300"
           />
-        <div className="rounded-md flex justify-around bg-gray-900 text-white">
+        <div className="rounded-md flex justify-around bg-gray-400 text-white">
           <div>
             {name}
           </div>
