@@ -6,6 +6,7 @@ import { convertMinToHrMin } from '@/app/lib/utils';
 import { useActionState, useState } from 'react';
 import { RecipeState, updateRecipe } from '@/app/lib/actions';
 import { Tag } from '@/app/lib/definitions';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 export default function RecipeForm ({
   id, name, description, calories, cookTimeMin, recipeTags, allTags, ingredients, steps
@@ -27,6 +28,10 @@ export default function RecipeForm ({
   const initialState: RecipeState = { message: null, errors: {} };
   const updateRecipeWithId = updateRecipe.bind(null, id);
   const [state, formAction] = useActionState(updateRecipeWithId, initialState);
+
+  function handleTagChange(tagIDs: string[]) {
+    setTags(tagIDs);
+  }
 
   return (
     <form id="recipe-form" action={formAction}>
@@ -108,49 +113,33 @@ export default function RecipeForm ({
       </div>
       {/* Tags */}
       <label>Choose tags</label>
-      {/* Selected Tags */}
-      <div className="p-2 grid grid-cols-9">
-        {tags.map((tag, index) => {
+      <ToggleGroup
+        type='multiple'
+        value={tags}
+        onValueChange={handleTagChange}
+      >
+        {allTags.map((tag) => {
           return (
-            <div
-              key={index}
+            <ToggleGroupItem
+              key={tag.tag_id}
+              value={tag.tag_id}
+              aria-label={tag.tag_name}
             >
-              {allTags.find((_tag) => _tag.tag_id == tag)?.tag_name}
-              <button
-                type="button"
-                onClick={() => setTags(tags.toSpliced(index, 1))}
-              >
-                <TrashIcon className="w-4" />
-              </button>
-            </div>
+              {tag.tag_name}
+            </ToggleGroupItem>
           );
         })}
-      </div>
-      {/* Tag Selector */}
-      <div className="flex">
-        <select
-          name="tags[]"
-          className="w-48 rounded-md p-2 bg-zinc-800"
-          multiple={true}
-          value={tags}
-          onChange={(e) => {
-            if (tags.length >= allTags.length) return;
-            if (tags.includes(e.target.value)) return;
-            setTags([...tags, e.target.value]);
-          }}
-        >
-          {allTags.map((tag) => {
-            return (
-              <option
-                key={tag.tag_id}
-                value={tag.tag_id}
-              >
-                {tag.tag_name}
-              </option>
-            );
-          })}
-        </select>
-      </div>
+      </ToggleGroup>
+      {tags.map((tagId) => {
+        return (
+          <input
+            key={tagId}
+            type="hidden"
+            name="tagIDs"
+            value={tagId}
+          />
+        );
+      })}
       {/* Ingredients */}
       <div className="pb-3">
         <label
